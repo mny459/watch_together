@@ -523,8 +523,13 @@ class _XmlReplay {
     return '''
     <root xmlns="urn:schemas-upnp-org:device-1-0" xmlns:dlna="urn:schemas-dlna-org:device-1-0">
     <URLBase>http://$ip:$port</URLBase>
+    <specVersion>
+      <major>1</major>
+      <minor>0</minor>
+    </specVersion>
     <device>
-        <deviceType>urn:schemas-upnp-org:device:MediaRenderer:1</deviceType>
+        <deviceType>urn:schemas-upnp-org:device:AVRenderer:1</deviceType>
+        <INMPR03>1.0</INMPR03>
         <presentationURL>/</presentationURL>
         <friendlyName>$name</friendlyName>
         <manufacturer>flutter dlna server</manufacturer>
@@ -548,14 +553,14 @@ class _XmlReplay {
             <service>
                 <serviceType>urn:schemas-upnp-org:service:ConnectionManager:1</serviceType>
                 <serviceId>urn:upnp-org:serviceId:ConnectionManager</serviceId>
-                <SCPDURL>/dlna/Render/AVTransport_scpd.xml</SCPDURL>
+                <SCPDURL>/dlna/Render/ConnectionManager_scpd.xml</SCPDURL>
                 <controlURL>/dlna/_urn:schemas-upnp-org:service:ConnectionManager_control</controlURL>
                 <eventSubURL>/dlna/_urn:schemas-upnp-org:service:ConnectionManager_event</eventSubURL>
             </service>
             <service>
                 <serviceType>urn:schemas-upnp-org:service:RenderingControl:1</serviceType>
                 <serviceId>urn:upnp-org:serviceId:RenderingControl</serviceId>
-                <SCPDURL>/dlna/Render/AVTransport_scpd.xml</SCPDURL>
+                <SCPDURL>/dlna/Render/RenderingControl_scpd.xml</SCPDURL>
                 <controlURL>/dlna/_urn:schemas-upnp-org:service:Rendering_control</controlURL>
                 <eventSubURL>/dlna/_urn:schemas-upnp-org:service:Rendering_event</eventSubURL>
             </service>
@@ -711,8 +716,8 @@ s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 </s:Envelope>''';
   }
 
-  /// dlna 服务描述文件
-  static String scpd() {
+  /// dlna AVTransport 服务描述文件
+  static String AVTransport_scpd() {
     return '''<?xml version="1.0" encoding="utf-8"?>
           <scpd xmlns="urn:schemas-upnp-org:service-1-0">
             <specVersion>
@@ -1084,6 +1089,363 @@ s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
             </serviceStateTable>
           </scpd>''';
   }
+
+  /// dlna RenderingControl 服务描述文件
+  static String RenderingControl_scpd() {
+    return '''<?xml version="1.0" encoding="utf-8"?>
+          <scpd xmlns="urn:schemas-upnp-org:service-1-0">
+            <specVersion>
+              <major>1</major>
+              <minor>0</minor>
+            </specVersion>
+            <actionList>
+              <action>
+                <name>GetMute</name>
+                <argumentList>
+                  <argument>
+                    <name>InstanceID</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_InstanceID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>Channel</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_Channel</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>CurrentMute</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>Mute</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+              <action>
+                <name>GetVolume</name>
+                <argumentList>
+                  <argument>
+                    <name>InstanceID</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_InstanceID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>Channel</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_Channel</relatedStateVariable>
+                  </argument>
+                   <argument>
+                    <name>CurrentVolume</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>Volume</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+              <action>
+                <name>GetVolumeDB</name>
+                <argumentList>
+                  <argument>
+                    <name>InstanceID</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_InstanceID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>Channel</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_Channel</relatedStateVariable>
+                    <defaultValue>0</defaultValue>
+                  </argument>
+                  <argument>
+                    <name>CurrentVolume</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>VolumeDB</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+              <action>
+                <name>GetVolumeDBRange</name>
+                <argumentList>
+                  <argument>
+                    <name>InstanceID</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_InstanceID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>Channel</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_Channel</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>MinValue</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>VolumeDB</relatedStateVariable>
+                  </argument>
+                   <argument>
+                    <name>MaxValue</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>VolumeDB</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+              <action>
+                <name>ListPresets</name>
+                <argumentList>
+                  <argument>
+                    <name>InstanceID</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_InstanceID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>CurrentPresetNameList</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>PresetNameList</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+              <action>
+                <name>SelectPreset</name>
+                <argumentList>
+                  <argument>
+                    <name>InstanceID</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_InstanceID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>PresetName</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_PresetName</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+              <action>
+                <name>SetMute</name>
+                <argumentList>
+                  <argument>
+                    <name>InstanceID</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_InstanceID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>Channel</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_Channel</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>DesiredMute</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>Mute</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+              <action>
+                <name>SetVolume</name>
+                <argumentList>
+                  <argument>
+                    <name>InstanceID</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_InstanceID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>Channel</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_Channel</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>DesiredVolume</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>Volume</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+            </actionList>
+            <serviceStateTable>
+                <stateVariable sendEvents=yes>
+                   <name>LastChange</name>
+                   <dataType>string</dataType>
+                </stateVariable>
+                <stateVariable sendEvents=no>
+                   <name>A_ARG_TYPE_Channel</name>
+                   <dataType>string</dataType>
+                   <allowedValueList>
+                      <allowedValue>Master</allowedValue>
+                   </allowedValueList>
+                </stateVariable>
+                <stateVariable sendEvents=no>
+                   <name>A_ARG_TYPE_InstanceID</name>
+                   <dataType>ui4</dataType>
+                </stateVariable>
+                <stateVariable sendEvents=no>
+                   <name>Volume</name>
+                   <dataType>ui2</dataType>
+                   <allowedValueRange>
+                      <minimum>0</minimum>
+                      <maximum>100</maximum>
+                      <step>1</step>
+                   </allowedValueRange>
+                </stateVariable>
+                <stateVariable sendEvents=no>
+                   <name>Mute</name>
+                   <dataType>boolean</dataType>
+                </stateVariable>
+                <stateVariable sendEvents=no>
+                   <name>PresetNameList</name>
+                   <dataType>string</dataType>
+                   <allowedValueList>
+                      <allowedValue>FactoryDefaults</allowedValue>
+                   </allowedValueList>
+                </stateVariable>
+                <stateVariable sendEvents=no>
+                   <name>A_ARG_TYPE_PresetName</name>
+                   <dataType>string</dataType>
+                   <allowedValueList>
+                      <allowedValue>FactoryDefaults</allowedValue>
+                   </allowedValueList>
+                </stateVariable>
+                <stateVariable sendEvents=no>
+                   <name>VolumeDB</name>
+                   <dataType>i2</dataType>
+                   <allowedValueRange>
+                      <minimum>-32767</minimum>
+                      <maximum>32767</maximum>
+                   </allowedValueRange>
+                </stateVariable>
+             </serviceStateTable>
+          </scpd>''';
+  }
+
+  /// dlna ConnectionManager 服务描述文件
+  static String ConnectionManager_scpd() {
+    return '''<?xml version="1.0" encoding="utf-8"?>
+          <scpd xmlns="urn:schemas-upnp-org:service-1-0">
+            <specVersion>
+              <major>1</major>
+              <minor>0</minor>
+            </specVersion>
+            <actionList>
+              <action>
+                <name>GetCurrentConnectionInfo</name>
+                <argumentList>
+                  <argument>
+                    <name>ConnectionID</name>
+                    <direction>in</direction>
+                    <relatedStateVariable>A_ARG_TYPE_ConnectionID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>RcsID</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>A_ARG_TYPE_RcsID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>AVTransportID</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>A_ARG_TYPE_AVTransportID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>ProtocolInfo</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>A_ARG_TYPE_ProtocolInfo</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>PeerConnectionManager</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>A_ARG_TYPE_ConnectionManager</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>PeerConnectionID</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>A_ARG_TYPE_ConnectionID</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>Direction</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>A_ARG_TYPE_Direction</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>Status</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>A_ARG_TYPE_ConnectionStatus</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+              <action>
+                <name>GetProtocolInfo</name>
+                <argumentList>
+                  <argument>
+                    <name>Source</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>SourceProtocolInfo</relatedStateVariable>
+                  </argument>
+                  <argument>
+                    <name>Sink</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>SinkProtocolInfo</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+              <action>
+                <name>GetCurrentConnectionIDs</name>
+                <argumentList>
+                  <argument>
+                    <name>ConnectionIDs</name>
+                    <direction>out</direction>
+                    <relatedStateVariable>CurrentConnectionIDs</relatedStateVariable>
+                  </argument>
+                </argumentList>
+              </action>
+            </actionList>
+            <serviceStateTable>
+                <stateVariable sendEvents='no'>
+                   <name>A_ARG_TYPE_ProtocolInfo</name>
+                   <dataType>string</dataType>
+                </stateVariable>
+                <stateVariable sendEvents='no'>
+                   <name>A_ARG_TYPE_ConnectionStatus</name>
+                   <dataType>string</dataType>
+                   <allowedValueList>
+                      <allowedValue>OK</allowedValue>
+                      <allowedValue>ContentFormatMismatch</allowedValue>
+                      <allowedValue>InsufficientBandwidth</allowedValue>
+                      <allowedValue>UnreliableChannel</allowedValue>
+                      <allowedValue>Unknown</allowedValue>
+                   </allowedValueList>
+                </stateVariable>
+                <stateVariable sendEvents='no'>
+                   <name>A_ARG_TYPE_AVTransportID</name>
+                   <dataType>i4</dataType>
+                </stateVariable>
+                <stateVariable sendEvents='no'>
+                   <name>A_ARG_TYPE_RcsID</name>
+                   <dataType>i4</dataType>
+                </stateVariable>
+                <stateVariable sendEvents='no'>
+                   <name>A_ARG_TYPE_ConnectionID</name>
+                   <dataType>i4</dataType>
+                </stateVariable>
+                <stateVariable sendEvents='no'>
+                   <name>A_ARG_TYPE_ConnectionManager</name>
+                   <dataType>string</dataType>
+                </stateVariable>
+                <stateVariable sendEvents='yes'>
+                   <name>SourceProtocolInfo</name>
+                   <dataType>string</dataType>
+                </stateVariable>
+                <stateVariable sendEvents='yes'>
+                   <name>SinkProtocolInfo</name>
+                   <dataType>string</dataType>
+                </stateVariable>
+                <stateVariable sendEvents='no'>
+                    <name>A_ARG_TYPE_Direction</name>
+                    <dataType>string</dataType>
+                    <allowedValueList>
+                        <allowedValue>Input</allowedValue>
+                        <allowedValue>Output</allowedValue>
+                    </allowedValueList>
+                </stateVariable>
+                <stateVariable sendEvents='yes'>
+                    <name>CurrentConnectionIDs</name>
+                    <dataType>string</dataType>
+                </stateVariable>
+             </serviceStateTable>
+          </scpd>''';
+  }
 }
 
 /// dlna 事件
@@ -1360,12 +1722,16 @@ class _Handler {
     var path = request.uri.path;
     var response = request.response;
     if (kDebugMode) {
-      print(path);
+      print("get : $path");
     }
     if (path.startsWith('/dlna/info.xml')) {
       _respDesc(response);
     } else if (path.startsWith('/dlna/Render/AVTransport_scpd.xml')) {
-      _scpd(response);
+      _AVTransport_scpd(response);
+    } else if (path.startsWith('/dlna/Render/RenderingControl_scpd.xml')) {
+      _RenderingControl_scpd(response);
+    } else if (path.startsWith('/dlna/Render/ConnectionManager_scpd.xml')) {
+      _ConnectionManager_scpd(response);
     } else {
       //兼容用get发送post指令
       doPost(request);
@@ -1379,7 +1745,7 @@ class _Handler {
     var path = request.uri.path;
     var response = request.response;
     if (kDebugMode) {
-      print(path);
+      print("post : $path");
     }
     String body;
     _ServerXmlParser? xmlParser;
@@ -1460,10 +1826,26 @@ class _Handler {
   }
 
   /// 返回客户端服务描述文件
-  void _scpd(HttpResponse response) {
+  void _AVTransport_scpd(HttpResponse response) {
     response.headers.add('Content-type', 'text/xml');
     response.headers.add('Access-Control-Allow-Origin', '*');
-    var data = _XmlReplay.scpd();
+    var data = _XmlReplay.AVTransport_scpd();
+    response.write(data);
+  }
+
+  /// 返回客户端服务描述文件
+  void _RenderingControl_scpd(HttpResponse response) {
+    response.headers.add('Content-type', 'text/xml');
+    response.headers.add('Access-Control-Allow-Origin', '*');
+    var data = _XmlReplay.RenderingControl_scpd();
+    response.write(data);
+  }
+
+  /// 返回客户端服务描述文件
+  void _ConnectionManager_scpd(HttpResponse response) {
+    response.headers.add('Content-type', 'text/xml');
+    response.headers.add('Access-Control-Allow-Origin', '*');
+    var data = _XmlReplay.ConnectionManager_scpd();
     response.write(data);
   }
 
